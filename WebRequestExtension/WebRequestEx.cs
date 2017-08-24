@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using WebRequestExtension.Extensions;
 
 namespace WebRequestExtension
 {
@@ -59,6 +62,23 @@ namespace WebRequestExtension
 
                 throw ex;
             }
+        }
+
+        public async Task<string> PostAsync(string url, dynamic postData, string referer = null, string contentType = null)
+        {
+            if(!(postData is IDictionary<string, object> dict))
+            {
+                throw new NotSupportedException("postData is not " + nameof(IDictionary<string, object>));
+            }
+
+            return await PostAsync(url, dict, referer, contentType);
+        }
+
+        public async Task<string> PostAsync(string url, IDictionary<string, object> postData, string referer = null, string contentType = null)
+        {
+            var postString = postData.ToPostString(contentType);
+            
+            return await PostAsync(url, postString, referer, contentType);
         }
 
         public async Task<string> PostAsync(string url, string postData, string referer = null, string contentType = null)
